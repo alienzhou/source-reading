@@ -27,10 +27,11 @@ es.pipeline = es.connect = es.pipe = pipeline
 //
 // combine multiple streams into a single stream.
 // will emit end only once
-
+// [tip]  ponit：只会触发一次end事件
 es.concat = //actually this should be called concat
 es.merge = function (/*streams...*/) {
   var toMerge = [].slice.call(arguments)
+  // [tip]  处理多种传参
   if (toMerge.length === 1 && (toMerge[0] instanceof Array)) {
     toMerge = toMerge[0] //handle array as arguments object
   }
@@ -41,8 +42,13 @@ es.merge = function (/*streams...*/) {
 
   if (toMerge.length) {
     toMerge.forEach(function (e) {
+      // [tip]  默认，当源可读流触发 'end' 事件时，目标流也会调用 stream.end() 方法从而结束写入
+      // [tip]  为目标可写流绑定了多个可读流
+      // [tip]  因此需要在某个可读流结束时设置end选项应该为false，以保持目标流打开
       e.pipe(stream, {end: false})
       var ended = false
+      // [tip]  为每个可读流添加end监听，通过endCount计数
+      // [tip]  当endCount与当前流数量相同时，全部写入完成，触发stream的end事件
       e.on('end', function () {
         if(ended) return
         ended = true
@@ -51,15 +57,19 @@ es.merge = function (/*streams...*/) {
           stream.emit('end')
       })
     })
+  // [tip]  流数量为空，触发end事件
   } else {
     process.nextTick(function () {
       stream.emit('end')
     })
   }
   
+  // [doubt]  重写stream流写入方法
   stream.write = function (data) {
     this.emit('data', data)
   }
+
+  // [tip]  销毁toMerge数组中所有流
   stream.destroy = function () {
     toMerge.forEach(function (e) {
       if(e.destroy) e.destroy()
@@ -105,26 +115,37 @@ es.readArray = function (array) {
     , paused = false
     , ended = false
 
+  // [tip]  可读流
   stream.readable = true
   stream.writable = false
 
   if(!Array.isArray(array))
     throw new Error('event-stream.read expects an array')
 
+  // [tip]  读取
   stream.resume = function () {
     if(ended) return
     paused = false
     var l = array.length
+    // [tip]  每次读取数组中的一个元素，并触发data事件
+    // [tip]  需要保证流状态：未暂停 且 未结束
     while(i < l && !paused && !ended) {
       stream.emit('data', array[i++])
     }
+    // [tip]  流读取结束
     if(i == l && !ended)
       ended = true, stream.readable = false, stream.emit('end')
   }
+
+  // [tip]  可读流创建后，在下一次事件循环时，开始读取
   process.nextTick(stream.resume)
+
+  // [tip]  暂停
   stream.pause = function () {
      paused = true
   }
+
+  // [tip]  销毁，end
   stream.destroy = function () {
     ended = true
     stream.emit('close')
