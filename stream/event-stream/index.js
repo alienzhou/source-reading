@@ -6,12 +6,22 @@
 
 var Stream = require('stream').Stream
   , es = exports
+  // [tip] https://github.com/dominictarr/through
   , through = require('through')
+  // [tip] Easy way to create a Readable Stream
+  // [tip] https://github.com/dominictarr/from
   , from = require('from')
+  // [tip] Takes a writable stream and a readable stream and makes them appear as a readable writable stream.
+  // [tip] It is assumed that the two streams are connected to each other in some way.
+  // [tip] https://github.com/Raynos/duplexer
   , duplex = require('duplexer')
+  // [tip] https://github.com/dominictarr/map-stream
   , map = require('map-stream')
+  // [tip] https://github.com/dominictarr/pause-stream
   , pause = require('pause-stream')
+  // [tip] https://github.com/dominictarr/split
   , split = require('split')
+  // [tip] https://github.com/dominictarr/stream-combiner
   , pipeline = require('stream-combiner')
   , immediately = global.setImmediate || process.nextTick;
 
@@ -180,16 +190,24 @@ function (func, continueOnError) {
 
     if(err) {
       stream.emit('error', err)
+      // [tip] 出错是否继续
       if(!continueOnError) stream.emit('end')
     } else if (arguments.length > 1)
+      // [tip] 如果get函数包含data参数，则作为chunk触发data事件
       stream.emit('data', data)
 
     immediately(function () {
+      // [tip] 读取结束、暂停读取、正在读取时，不进行下一次读取
       if(ended || paused || reading) return
       try {
         reading = true
+        // [tip] 匿名函数function (){}会被传入你自己定义的readable - asyncFunction中作为 callback
+        // [tip] 因此需要你手动调用，否则不会继续读取
+        // [tip] readable用法参见https://github.com/dominictarr/event-stream#readable-asyncfunction
         func.call(stream, i++, function () {
           reading = false
+          // [tip] 将callback中的arguments作为参数传给get函数
+          // [tip] 根据定义，因此cb的第一个参数为err，第二个参数为data
           get.apply(null, arguments)
         })
       } catch (err) {
@@ -197,8 +215,11 @@ function (func, continueOnError) {
       }
     })
   }
+
+  // [tip] 恢复重新读取
   stream.resume = function () {
     paused = false
+    // [tip] 重新开启读取polling
     get()
   }
   process.nextTick(get)
@@ -222,6 +243,8 @@ es.mapSync = function (sync) {
   return es.through(function write(data) {
     var mappedData
     try {
+      // [tip] 同步(synchronized)方法，sync方法内部需要通过return返回数据
+      // [tip] 异步版本则通过callback
       mappedData = sync(data)
     } catch (err) {
       return this.emit('error', err)
@@ -234,7 +257,7 @@ es.mapSync = function (sync) {
 //
 // log just print out what is coming through the stream, for debugging
 //
-
+// [tip] 类似于一个不做任何处理的管道，只是打印data
 es.log = function (name) {
   return es.through(function (data) {
     var args = [].slice.call(arguments)
@@ -260,7 +283,8 @@ es.child = function (child) {
 //
 // must be used after es.split() to ensure that each chunk represents a line
 // source.pipe(es.split()).pipe(es.parse())
-
+// [tip] 在parse之前最好先用split分行。主要是将原本的stream中的data分为一整块一整块的chunk
+// [tip] 可以配置是否log err，便于调试
 es.parse = function (options) {
   var emitError = !!(options ? options.error : false)
   return es.through(function (data) {
@@ -298,6 +322,7 @@ es.stringify = function () {
 // I need this for shadow-npm so it's only relatively small json files.
 
 es.replace = function (from, to) {
+  // [tip] es.split(from) ==> es.join(to) (0.0)
   return es.pipeline(es.split(from), es.join(to))
 }
 
@@ -315,6 +340,8 @@ es.join = function (str) {
 
   var first = true
   return es.through(function (data) {
+    // [tip] 开头不加str（第一个chunk前面不加str）
+    // [tip] 其余的chunk前面都加上str
     if(!first)
       this.emit('data', str)
     first = false
@@ -329,17 +356,21 @@ es.join = function (str) {
 //
 
 es.wait = function (callback) {
+  // [tip] 用数组保存所有chunk
   var arr = []
   return es.through(function (data) { arr.push(data) },
     function () {
+      // [tip] buffer和string分开处理
       var body = Buffer.isBuffer(arr[0]) ? Buffer.concat(arr)
         : arr.join('')
+      // [tip] 全部拼接完成触发data事件
       this.emit('data', body)
       this.emit('end')
       if(callback) callback(null, body)
     })
 }
 
+// [tip] 废弃
 es.pipeable = function () {
   throw new Error('[EVENT-STREAM] es.pipeable is deprecated')
 }
