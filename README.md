@@ -5,3 +5,6 @@ source code reading (e.g. frontend, nodejs)
 - [x] through2
 - [x] event-stream
 - [ ] split
+- [ ] map-stream
+- [ ] pause-stream
+- [ ] stream-combiner2
