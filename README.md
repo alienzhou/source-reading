@@ -3,4 +3,5 @@ source code reading (e.g. frontend, nodejs)
 ## 源码列表
 ### stream 流操作
 - [x] through2
-- [ ] event-stream
+- [x] event-stream
+- [ ] split
