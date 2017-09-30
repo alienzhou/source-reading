@@ -126,6 +126,7 @@ return t2
 // [tip]  同时，你可以通过给返回的Through2传入options进行调整
 module.exports.ctor = through2(function (options, transform, flush) {
 function Through2 (override) {
+  // [tip] 既支持使用构造函数的方式new出一个新实例，也支持直接调用函数，返回一个实例
   if (!(this instanceof Through2))
     return new Through2(override)
 

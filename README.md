@@ -9,6 +9,7 @@ source code reading (e.g. frontend, nodejs)
 - [ ] pause-stream
 - [ ] stream-combiner2
 - [x] flush-write-stream
+- [x] pumpify
 
 ### gulp相关
 - [ ] vinyl
