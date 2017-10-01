@@ -12,6 +12,10 @@ source code reading (e.g. frontend, nodejs)
 - [x] pumpify
 
 ### gulp相关
-- [ ] vinyl
+- [x] vinyl
 - [ ] vinyl-fs
 - [ ] gulp
+- [ ] gulp-util
+- [ ] gulp-md5-plus
+- [ ] gulp-rename
+- [ ] run-sequence
