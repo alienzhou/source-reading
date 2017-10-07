@@ -7,7 +7,7 @@ source code reading (e.g. frontend, nodejs)
 - [x] split
 - [ ] map-stream
 - [ ] pause-stream
-- [ ] stream-combiner2
+- [x] stream-combiner2
 - [x] flush-write-stream
 - [x] pumpify
 
