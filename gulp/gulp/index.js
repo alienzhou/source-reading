@@ -1,9 +1,12 @@
 'use strict';
 
 var util = require('util');
+// [tip] 一个根据依赖关系并行执行任务的框架库
 var Orchestrator = require('orchestrator');
 var gutil = require('gulp-util');
 var deprecated = require('deprecated');
+// [tip] 目前版本的gulp依然使用0.3.0版本的vinyl-fs
+// [tip] 0.3.0版本的vinyl-fs，代码量非常精简，也没有symlink相关操作
 var vfs = require('vinyl-fs');
 
 function Gulp() {
@@ -22,8 +25,10 @@ Gulp.prototype.run = function() {
   this.start.apply(this, tasks);
 };
 
+// [tip] gulp.src和gulp.dest复用vinyl-fs的api
 Gulp.prototype.src = vfs.src;
 Gulp.prototype.dest = vfs.dest;
+
 Gulp.prototype.watch = function(glob, opt, fn) {
   if (typeof opt === 'function' || Array.isArray(opt)) {
     fn = opt;
@@ -31,12 +36,14 @@ Gulp.prototype.watch = function(glob, opt, fn) {
   }
 
   // Array of tasks given
+  // [tip] 如果直接给定一个任务数组，则执行这些任务
   if (Array.isArray(fn)) {
     return vfs.watch(glob, opt, function() {
       this.start.apply(this, fn);
     }.bind(this));
   }
 
+  // [tip] glob-watcher
   return vfs.watch(glob, opt, fn);
 };
 
@@ -60,4 +67,5 @@ Gulp.prototype.run = deprecated.method('gulp.run() has been deprecated. ' +
 );
 
 var inst = new Gulp();
+// [tip] 默认会导出一个Gulp的实例，因此如果需要使用Gulp类，则可以调用.gulp这个API
 module.exports = inst;

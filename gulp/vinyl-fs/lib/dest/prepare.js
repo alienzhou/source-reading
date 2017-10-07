@@ -10,10 +10,13 @@ function prepareWrite(folderResolver, optResolver) {
     throw new Error('Invalid output folder');
   }
 
+  // [tip] 处理输入的file对象，标准化其属性
+  // [tip] 为file添加一些路径相关属性，根据输入处理输出路径
   function normalize(file, enc, cb) {
     var mode = optResolver.resolve('mode', file);
     var cwd = path.resolve(optResolver.resolve('cwd', file));
 
+    // [tip] 输出的目标文件夹
     var outFolderPath = folderResolver.resolve('outFolder', file);
     if (!outFolderPath) {
       return cb(new Error('Invalid output folder'));

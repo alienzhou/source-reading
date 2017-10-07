@@ -3,6 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 
+// [tip] 检测针对不同bash的脚本是否存在
 module.exports = function(name) {
   if (typeof name !== 'string') {
     throw new Error('Missing completion type');

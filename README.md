@@ -13,12 +13,12 @@ source code reading (e.g. frontend, nodejs)
 
 ### gulp相关
 - [x] vinyl
-- [ ] vinyl-fs
+- [x] vinyl-fs
 - [ ] vinyl-sourcemap
-- [ ] gulp
+- [x] gulp
 - [ ] gulp-util
 - [ ] gulp-md5-plus
 - [ ] gulp-rename
 - [ ] run-sequence
-- [ ] orchestrator
-- [ ] sequencify
+- [x] orchestrator
+- [x] sequencify

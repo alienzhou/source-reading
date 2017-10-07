@@ -35,12 +35,14 @@ function readContents(optResolver) {
     }
 
     // Read and pass full contents
+    // [tip] buffer模式，将内容写入buffer
     var buffer = optResolver.resolve('buffer', file);
     if (buffer) {
       return readBuffer(file, optResolver, onRead);
     }
 
     // Don't buffer anything - just pass streams
+    // [tip] stream模式下，contents为一个file文件内容的可读流
     return readStream(file, optResolver, onRead);
 
     // This is invoked by the various readXxx modules when they've finished
