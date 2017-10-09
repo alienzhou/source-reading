@@ -1,4 +1,5 @@
 'use strict';
+// [tip] vinyl是一个表示文件的对象，用于在gulp流中表示文件
 
 var path = require('path');
 var isBuffer = require('buffer').Buffer.isBuffer;
@@ -10,10 +11,13 @@ var cloneStats = require('clone-stats');
 var cloneBuffer = require('clone-buffer');
 var removeTrailingSep = require('remove-trailing-separator');
 
+// [tip] 通过是否有pipe方法判断是否为stream
 var isStream = require('./lib/is-stream');
 var normalize = require('./lib/normalize');
+// [tip] 供inspect方法调用时显示stream信息
 var inspectStream = require('./lib/inspect-stream');
 
+// [tip] 内部属性，通过defineProperty来设定其存取器
 var builtInFields = [
   '_contents', '_symlink', 'contents', 'stat', 'history', 'path',
   '_base', 'base', '_cwd', 'cwd',

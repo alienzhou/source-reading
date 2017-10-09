@@ -7,6 +7,7 @@ var mkdirp = require('fs-mkdirp-stream/mkdirp');
 var fo = require('../../file-operations');
 
 function writeDir(file, optResolver, onWritten) {
+  // [tip] 创建文件夹
   mkdirp(file.path, file.stat.mode, onMkdirp);
 
   function onMkdirp(mkdirpErr) {

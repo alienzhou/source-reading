@@ -6,12 +6,25 @@ source code reading (e.g. frontend, nodejs)
 - [x] event-stream
 - [x] split
 - [ ] map-stream
-- [ ] pause-stream
-- [ ] stream-combiner2
+- [x] pause-stream
+- [x] stream-combiner2
 - [x] flush-write-stream
 - [x] pumpify
 
-### gulp相关
-- [ ] vinyl
-- [ ] vinyl-fs
-- [ ] gulp
+### gulp 相关
+- [x] vinyl
+- [x] vinyl-fs
+- [ ] vinyl-sourcemap
+- [x] gulp
+- [ ] gulp-util
+- [ ] gulp-md5-plus
+- [ ] gulp-rename
+- [ ] run-sequence
+- [x] orchestrator
+- [x] sequencify
+
+### visualization 可视化
+- [ ] D3
+
+### server
+- [ ] express

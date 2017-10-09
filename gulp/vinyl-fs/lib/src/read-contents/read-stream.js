@@ -15,6 +15,7 @@ function streamFile(file, optResolver, onRead) {
 
   var removeBOM = optResolver.resolve('removeBOM', file);
 
+  // 惰性stream，只有当有读取源和写入源时才会开启
   file.contents = new lazystream.Readable(function() {
     var contents = fs.createReadStream(filePath);
 

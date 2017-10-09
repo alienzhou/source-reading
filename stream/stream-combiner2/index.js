@@ -25,9 +25,11 @@ module.exports.obj = function () {
   
 function combine (streams, opts) {
 
+  // [tip] 将stream变为可读流
   for (var i = 0; i < streams.length; i++)
     streams[i] = wrap(streams[i], opts)
 
+  // [tip] 流数目小于2时的特殊处理
   if(streams.length == 0)
     return new PassThrough(opts)
   else if(streams.length == 1)
@@ -35,10 +37,12 @@ function combine (streams, opts) {
 
   var first = streams[0]
     , last = streams[streams.length - 1]
+    // [tip] 将首尾两个流合并为读写流
     , thepipe = duplexer(opts, first, last)
 
   //pipe all the streams together
 
+  // [tip] 将中间的流用pipe连接
   function recurse (streams) {
     if(streams.length < 2)
       return
@@ -62,7 +66,9 @@ function combine (streams, opts) {
   return thepipe
 }
 
+// [tip] 如果stream不为可读流，将stream包装为可读流
 function wrap (tr, opts) {
+  // [tip] 检测stream是否为可读流
   if (typeof tr.read === 'function') return tr
   return new Readable(opts).wrap(tr)
 }

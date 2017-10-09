@@ -11,6 +11,7 @@ function writeStream(file, optResolver, onWritten) {
   };
 
   // TODO: is this the best API?
+  // [tip] 创建对目标文件的写入流（gulp.dest中指定的目标）
   var outStream = fo.createWriteStream(file.path, opt, onFlush);
 
   file.contents.once('error', onComplete);
@@ -18,6 +19,7 @@ function writeStream(file, optResolver, onWritten) {
   outStream.once('finish', onComplete);
 
   // TODO: should this use a clone?
+  // [tip] stream模式下，file.contents为文件内容的读取流，将该流导入目标文件写入流中
   file.contents.pipe(outStream);
 
   function onComplete(streamErr) {
