@@ -5,7 +5,7 @@ source code reading (e.g. frontend, nodejs)
 - [x] through2
 - [x] event-stream
 - [x] split
-- [ ] map-stream
+- [x] map-stream
 - [x] pause-stream
 - [x] stream-combiner2
 - [x] flush-write-stream
