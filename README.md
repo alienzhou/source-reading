@@ -29,6 +29,6 @@ source code reading (e.g. frontend, nodejs)
 ### server
 - [ ] express
 
-### redux
+### redux相关
 - [ ] redux
 - [ ] redux-saga
