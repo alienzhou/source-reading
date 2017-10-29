@@ -18,7 +18,7 @@ source code reading (e.g. frontend, nodejs)
 - [x] gulp
 - [ ] gulp-util
 - [ ] gulp-md5-plus
-- [ ] gulp-rename
+- [x] gulp-rename
 - [ ] run-sequence
 - [x] orchestrator
 - [x] sequencify
@@ -28,3 +28,7 @@ source code reading (e.g. frontend, nodejs)
 
 ### server
 - [ ] express
+
+### redux
+- [ ] redux
+- [ ] redux-saga
