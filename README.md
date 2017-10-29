@@ -32,3 +32,7 @@ source code reading (e.g. frontend, nodejs)
 ### redux相关
 - [ ] redux
 - [ ] redux-saga
+
+## 异步数据
+- [ ] axios
+- [ ] RxJS
