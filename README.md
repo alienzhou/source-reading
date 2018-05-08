@@ -1,4 +1,4 @@
-# source-reading 源码阅读计划
+# source-reading 源码阅读
 source code reading (e.g. frontend, nodejs)
 ## 源码列表
 ### stream 流操作
@@ -38,4 +38,4 @@ source code reading (e.g. frontend, nodejs)
 - [ ] [RxJS](https://github.com/reactivex/rxjs): The Reactive Extensions for JavaScript.
 
 ### Performace
-- [ ] [fastdom](https://github.com/wilsonpage/fastdom): Eliminates layout thrashing by batching DOM measurement and mutation tasks.
+- [x] [fastdom](https://github.com/wilsonpage/fastdom): Eliminates layout thrashing by batching DOM measurement and mutation tasks.
