@@ -213,6 +213,8 @@ fis.uri = require('./uri.js');
 // project
 fis.project = require('./project.js');
 
+// [tip] fis中特有的文件对象，fis会基于该文件对象进行一系列操作
+// [tip] fis.file.wrap是一个非常有用的方法，能够基于路径生成fis的File对象
 // file
 fis.file = require('./file.js');
 
