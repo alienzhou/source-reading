@@ -423,6 +423,7 @@ class Compilation extends Tapable {
 			webassembly: new ModuleTemplate(this.runtimeTemplate, "webassembly")
 		};
 
+		// [tip] Semaphore是一个任务池管理的类（类似于线程池），此处设置最大并发任务数默认为100
 		this.semaphore = new Semaphore(options.parallelism || 100);
 
 		this.entries = [];
@@ -476,6 +477,7 @@ class Compilation extends Tapable {
 		this._rebuildingModules = new Map();
 	}
 
+	// [tip] 随时都可以获取一个compilation实例的stats
 	getStats() {
 		return new Stats(this);
 	}
@@ -494,7 +496,9 @@ class Compilation extends Tapable {
 	 * @returns {AddModuleResult} returns meta about whether or not the module had built
 	 * had an issuer, or any dependnecies
 	 */
+	// [tip] 向compilation中添加模块
 	addModule(module, cacheGroup) {
+		// [tip] 不同的Module子类的identifier不同
 		const identifier = module.identifier();
 		const alreadyAddedModule = this._modules.get(identifier);
 		if (alreadyAddedModule) {

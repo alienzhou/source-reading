@@ -29,6 +29,7 @@ module.exports = class EntryOptionPlugin {
 	 * @returns {void}
 	 */
 	apply(compiler) {
+		// [tip] 将方法注册在entryOption钩子上，根据配置选择具体的入口插件
 		compiler.hooks.entryOption.tap("EntryOptionPlugin", (context, entry) => {
 			if (typeof entry === "string" || Array.isArray(entry)) {
 				itemToPlugin(context, entry, "main").apply(compiler);

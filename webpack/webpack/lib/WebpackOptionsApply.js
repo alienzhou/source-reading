@@ -288,14 +288,17 @@ class WebpackOptionsApply extends OptionsApply {
 			}).apply(compiler);
 		}
 
-		// [tip] 下面开始，默认或针对配置注册一系列的webpack内置插件
+		// [tip] 这一部分是不论什么配置都会使用的基础webpack内置插件，应该是包含了webpack模块依赖分析和打包的基础功能
 		new JavascriptModulesPlugin().apply(compiler);
 		new JsonModulesPlugin().apply(compiler);
 		new WebAssemblyModulesPlugin({
 			mangleImports: options.optimization.mangleWasmImports
 		}).apply(compiler);
 
+		// [tip] 入口工具选择插件，会根据入口的参数配置情况，选择具体的入口插件
+		// [tip] 实际起作用的三种入口插件：SingleEntryPlugin / MultiEntryPlugin (array) / DynamicEntryPlugin (function)
 		new EntryOptionPlugin().apply(compiler);
+		// [tip] hook entryOption
 		compiler.hooks.entryOption.call(options.context, options.entry);
 
 		new CompatibilityPlugin().apply(compiler);
@@ -318,6 +321,8 @@ class WebpackOptionsApply extends OptionsApply {
 		new ImportPlugin(options.module).apply(compiler);
 		new SystemPlugin(options.module).apply(compiler);
 
+
+		// [tip] 下面开始，针对配置注册一系列的webpack内置插件
 		if (typeof options.mode !== "string") {
 			new WarnNoModeSetPlugin().apply(compiler);
 		}
@@ -478,10 +483,12 @@ class WebpackOptionsApply extends OptionsApply {
 		}
 
 		// [tip] 这里触发了afterPlugins这个hook
+		// [tip] hook afterPlugins
 		compiler.hooks.afterPlugins.call(compiler);
 		if (!compiler.inputFileSystem) {
 			throw new Error("No input filesystem provided");
 		}
+
 		compiler.resolverFactory.hooks.resolveOptions
 			.for("normal")
 			.tap("WebpackOptionsApply", resolveOptions => {
@@ -493,6 +500,7 @@ class WebpackOptionsApply extends OptionsApply {
 					resolveOptions
 				);
 			});
+
 		compiler.resolverFactory.hooks.resolveOptions
 			.for("context")
 			.tap("WebpackOptionsApply", resolveOptions => {
@@ -516,6 +524,8 @@ class WebpackOptionsApply extends OptionsApply {
 					resolveOptions
 				);
 			});
+
+		// [tip] hook afterResolvers
 		compiler.hooks.afterResolvers.call(compiler);
 		return options;
 	}
