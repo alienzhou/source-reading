@@ -138,6 +138,8 @@ class Stats {
 			compilation.compiler.context === context
 				? compilation.requestShortener
 				: new RequestShortener(context);
+
+		// [tip] 格式化与默认各项配置，各个变量都对应一个配置（true/false）
 		const showPerformance = optionOrLocalFallback(options.performance, true);
 		const showHash = optionOrLocalFallback(options.hash, true);
 		const showEnv = optionOrLocalFallback(options.env, false);
@@ -331,6 +333,7 @@ class Stats {
 			return text;
 		};
 
+		// [tip] 最终toJson()的返回对象就是obj
 		const obj = {
 			errors: compilation.errors.map(formatError),
 			warnings: Stats.filterWarnings(
@@ -378,6 +381,9 @@ class Stats {
 		if (showOutputPath) {
 			obj.outputPath = this.compilation.mainTemplate.outputOptions.path;
 		}
+
+		// [tip] 从compilation.assets中整理assets信息
+		// [tip] 从compilation.chunks中整理chunks信息，挂在到相应的asset上
 		if (showAssets) {
 			const assetsByFile = {};
 			const compilationAssets = Object.keys(compilation.assets);
@@ -471,10 +477,12 @@ class Stats {
 			return obj;
 		};
 
+		// [tip] 根据入口进行chunk相关信息的组合
 		if (showEntrypoints) {
 			obj.entrypoints = fnChunkGroup(compilation.entrypoints);
 		}
 
+		// [tip] 根据namedChunk进行chunk相关信息的组合
 		if (showChunkGroups) {
 			obj.namedChunkGroups = fnChunkGroup(compilation.namedChunkGroups);
 		}
@@ -717,6 +725,8 @@ class Stats {
 		return obj;
 	}
 
+	// [tip] 将stats json数据格式化为便于展示的字符串，用与在webpack打包完成时在控制台打印打包信息
+	// [tip] 具体的json to string 包装方法为 Stats.jsonToString
 	toString(options) {
 		if (typeof options === "boolean" || typeof options === "string") {
 			options = Stats.presetToOptions(options);
@@ -967,6 +977,7 @@ class Stats {
 			}
 		};
 
+		// [tip] 打印入口的webpack打包信息
 		if (obj.entrypoints) {
 			processChunkGroups(obj.entrypoints, "Entrypoint");
 		}
@@ -1044,6 +1055,7 @@ class Stats {
 			}
 		};
 
+		// [tip] 打包完成后，打印模块信息
 		const processModuleContent = (module, prefix) => {
 			if (Array.isArray(module.providedExports)) {
 				colors.normal(prefix);
@@ -1341,12 +1353,14 @@ class Stats {
 			);
 		}
 
+		// [tip] 去除最后多余的换行符
 		while (buf[buf.length - 1] === "\n") {
 			buf.pop();
 		}
 		return buf.join("");
 	}
 
+	// [tip] 默认的配置组
 	static presetToOptions(name) {
 		// Accepted values: none, errors-only, minimal, normal, detailed, verbose
 		// Any other falsy value will behave as 'none', truthy values as 'normal'
