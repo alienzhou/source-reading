@@ -43,7 +43,9 @@ const webpack = (options, callback) => {
 				plugin.apply(compiler);
 			}
 		}
+		// [tip] hook environment
 		compiler.hooks.environment.call();
+		// [tip] hook afterEnvironment
 		compiler.hooks.afterEnvironment.call();
 		// [tip] 这里主要会根据配置注册上各种插件，同时注册结束后触发afterPlugins hook
 		compiler.options = new WebpackOptionsApply().process(options, compiler);

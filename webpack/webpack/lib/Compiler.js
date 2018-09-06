@@ -204,7 +204,7 @@ class Compiler extends Tapable {
 	}
 
 	run(callback) {
-		// [num] 【1】
+		// [num] 1
 		// [tip] 一个webpack实例不能重复运行
 		if (this.running) return callback(new ConcurrentCompilationError());
 
@@ -238,7 +238,7 @@ class Compiler extends Tapable {
 				return;
 			}
 
-			// [num] 【11】
+			// [num] 11
 			this.emitAssets(compilation, err => {
 				if (err) return finalCallback(err);
 
@@ -264,7 +264,7 @@ class Compiler extends Tapable {
 					return;
 				}
 
-				// [num] 【12】
+				// [num] 12
 				this.emitRecords(err => {
 					if (err) return finalCallback(err);
 
@@ -281,21 +281,21 @@ class Compiler extends Tapable {
 			});
 		};
 
-		// [num] 【2】
+		// [num] 2
 		// [tip] hook beforeRun - 运行前的钩子
 		this.hooks.beforeRun.callAsync(this, err => {
 			if (err) return finalCallback(err);
 
-			// [num] 【3】
+			// [num] 3
 			// [tip] hook run - 执行完run钩子后，webpack正式开始运行
 			this.hooks.run.callAsync(this, err => {
 				if (err) return finalCallback(err);
 
-				// [num] 【4】
+				// [num] 4
 				this.readRecords(err => {
 					if (err) return finalCallback(err);
 
-					// [num] 【5】
+					// [num] 5
 					this.compile(onCompiled);
 				});
 			});
@@ -328,7 +328,7 @@ class Compiler extends Tapable {
 		}
 	}
 
-	// [num] 【11】
+	// [num] 11
 	// [tip] 将webpack产出的emit输出到文件系统中
 	emitAssets(compilation, callback) {
 		let outputPath;
@@ -406,7 +406,7 @@ class Compiler extends Tapable {
 		});
 	}
 
-	// [num] 【12】
+	// [num] 12
 	// [tip] 将records信息写入到指定文件中
 	emitRecords(callback) {
 		if (!this.recordsOutputPath) return callback();
@@ -436,7 +436,7 @@ class Compiler extends Tapable {
 		});
 	}
 
-	// [num] 【4】
+	// [num] 4
 	// [tip] 从指定的文件中读取records信息
 	readRecords(callback) {
 		if (!this.recordsInputPath) {
@@ -532,14 +532,14 @@ class Compiler extends Tapable {
 		return !!this.parentCompilation;
 	}
 
-	// [num] 【8】
+	// [num] 8
 	createCompilation() {
 		return new Compilation(this);
 	}
 
-	// [num] 【7】
+	// [num] 7
 	newCompilation(params) {
-		// [num] 【8】
+		// [num] 8
 		const compilation = this.createCompilation();
 		compilation.fileTimestamps = this.fileTimestamps;
 		compilation.contextTimestamps = this.contextTimestamps;

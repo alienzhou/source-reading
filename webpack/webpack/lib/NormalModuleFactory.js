@@ -120,12 +120,15 @@ class NormalModuleFactory extends Tapable {
 		this.context = context || "";
 		this.parserCache = Object.create(null);
 		this.generatorCache = Object.create(null);
+
+		// [tip] 构造函数中在factory钩子上注册方法
 		this.hooks.factory.tap("NormalModuleFactory", () => (result, callback) => {
 			let resolver = this.hooks.resolver.call(null);
 
 			// Ignored
 			if (!resolver) return callback();
 
+			// [tip] 这里就可以从data中获取下面resolver钩子中异步返回的对象
 			resolver(result, (err, data) => {
 				if (err) return callback(err);
 
@@ -135,32 +138,39 @@ class NormalModuleFactory extends Tapable {
 				// direct module
 				if (typeof data.source === "function") return callback(null, data);
 
+				// [tip] hook afterResolve
 				this.hooks.afterResolve.callAsync(data, (err, result) => {
 					if (err) return callback(err);
 
 					// Ignored
 					if (!result) return callback();
 
+					// [tip] hook createModule
 					let createdModule = this.hooks.createModule.call(result);
 					if (!createdModule) {
 						if (!result.request) {
 							return callback(new Error("Empty dependency (no request)"));
 						}
 
+						// [tip] 创建模块对象
 						createdModule = new NormalModule(result);
 					}
 
+					// [tip] hook module
 					createdModule = this.hooks.module.call(createdModule, result);
 
 					return callback(null, createdModule);
 				});
 			});
 		});
+
+		// [tip] 构造函数中在resolver钩子上注册方法
 		this.hooks.resolver.tap("NormalModuleFactory", () => (data, callback) => {
 			const contextInfo = data.contextInfo;
 			const context = data.context;
 			const request = data.request;
 
+			// [tip] 对loader与normal模块，可以设置不同的resolver
 			const loaderResolver = this.getResolver("loader");
 			const normalResolver = this.getResolver("normal", data.resolveOptions);
 
@@ -181,13 +191,16 @@ class NormalModuleFactory extends Tapable {
 			const noAutoLoaders =
 				noPreAutoLoaders || requestWithoutMatchResource.startsWith("!");
 			const noPrePostAutoLoaders = requestWithoutMatchResource.startsWith("!!");
+			// [tip] 将request解析为inline-loader和实际模块(先解析inline-loader)
 			let elements = requestWithoutMatchResource
 				.replace(/^-?!+/, "")
 				.replace(/!!+/g, "!")
 				.split("!");
+			// [tip] 解析后elements中最后一个是实际模块，其余为该模块所需的各种loader
 			let resource = elements.pop();
 			elements = elements.map(identToLoaderRequest);
 
+			// [tip] 异步并行解析（主要是模块路径等信息）
 			asyncLib.parallel(
 				[
 					callback =>
@@ -220,6 +233,31 @@ class NormalModuleFactory extends Tapable {
 						);
 					}
 				],
+				// [tip] results结构
+				/**
+				[ [ { loader:
+								'/Users/zhouhongxuan/programming/gitrepo/webpack-fis/basic-demo/home/node_modules/html-webpack-plugin/lib/loader.js',
+				 			options: undefined } ],
+		 			{ resourceResolveData:
+							{ context: [Object],
+								path:
+					 			'/Users/zhouhongxuan/programming/gitrepo/webpack-fis/basic-demo/home/public/index.html',
+								request: undefined,
+								query: '',
+								module: false,
+								file: false,
+								descriptionFilePath:
+					 			'/Users/zhouhongxuan/programming/gitrepo/webpack-fis/basic-demo/home/package.json',
+								descriptionFileData: [Object],
+								descriptionFileRoot:
+					 			'/Users/zhouhongxuan/programming/gitrepo/webpack-fis/basic-demo/home',
+								relativePath: './public/index.html',
+								__innerRequest_request: undefined,
+								__innerRequest_relativePath: './public/index.html',
+								__innerRequest: './public/index.html' },
+			 			resource:
+							'/Users/zhouhongxuan/programming/gitrepo/webpack-fis/basic-demo/home/public/index.html' } ]
+				*/
 				(err, results) => {
 					if (err) return callback(err);
 					let loaders = results[0];
@@ -239,6 +277,7 @@ class NormalModuleFactory extends Tapable {
 						return callback(e);
 					}
 
+					// [tip] RawModule
 					if (resource === false) {
 						// ignored
 						return callback(
@@ -251,6 +290,8 @@ class NormalModuleFactory extends Tapable {
 						);
 					}
 
+					// [tip] userRequest会包含loader，这里将之前获得的loader进行了格式化，为绝对路径
+					// [tip] 例如 /Users/demo/node_modules/css-loader/index.js!/Users/demo/node_modules/less-loader/dist/cjs.js!/Users/demo/src/css/index.less
 					const userRequest =
 						(matchResource !== undefined ? `${matchResource}!=!` : "") +
 						loaders
@@ -258,6 +299,9 @@ class NormalModuleFactory extends Tapable {
 							.concat([resource])
 							.join("!");
 
+					// [tip] 模块资源的绝对路径
+					// [tip] 例如 /Users/demo/src/css/index.less
+					// [tip] 也包括loader的一些辅助模块，例如 /Users/demo/node_modules/style-loader/lib/addStyles.js
 					let resourcePath =
 						matchResource !== undefined ? matchResource : resource;
 					let resourceQuery = "";
@@ -267,6 +311,7 @@ class NormalModuleFactory extends Tapable {
 						resourcePath = resourcePath.substr(0, queryIndex);
 					}
 
+					// [tip] RuleSet类用来处理webpack.config中的各类loader条件，即处理module.rules（后解析config loader）
 					const result = this.ruleSet.exec({
 						resource: resourcePath,
 						realResource:
@@ -281,6 +326,7 @@ class NormalModuleFactory extends Tapable {
 					const useLoadersPost = [];
 					const useLoaders = [];
 					const useLoadersPre = [];
+					// [tip] Rule.enforce，loader分类
 					for (const r of result) {
 						if (r.type === "use") {
 							if (r.enforce === "post" && !noPrePostAutoLoaders) {
@@ -309,6 +355,7 @@ class NormalModuleFactory extends Tapable {
 							settings[r.type] = r.value;
 						}
 					}
+					// [tip] 异步并行解析各类loader（主要是模块路径等信息）：post-loader/normal-loader/pre-loader
 					asyncLib.parallel(
 						[
 							this.resolveRequestArray.bind(
@@ -335,16 +382,19 @@ class NormalModuleFactory extends Tapable {
 						],
 						(err, results) => {
 							if (err) return callback(err);
+							// [tip] 按post, inline, normal, pre顺序合并loader数组
 							loaders = results[0].concat(loaders, results[1], results[2]);
 							process.nextTick(() => {
 								const type = settings.type;
 								const resolveOptions = settings.resolve;
+								// [tip] 返回模块路径解析完毕后各个ModuleFactory对应的值，此时所需的loader的路径也已解析完毕
 								callback(null, {
 									context: context,
 									request: loaders
 										.map(loaderToIdent)
 										.concat([resource])
 										.join("!"),
+									// [doubt] data.dependencies 是在何时处理出来的？
 									dependencies: data.dependencies,
 									userRequest,
 									rawRequest: request,
@@ -368,12 +418,15 @@ class NormalModuleFactory extends Tapable {
 
 	create(data, callback) {
 		const dependencies = data.dependencies;
+		// [tip] 模块缓存，减少每次处理量
 		const cacheEntry = dependencyCache.get(dependencies[0]);
 		if (cacheEntry) return callback(null, cacheEntry);
 		const context = data.context || this.context;
 		const resolveOptions = data.resolveOptions || EMPTY_RESOLVE_OPTIONS;
 		const request = dependencies[0].request;
 		const contextInfo = data.contextInfo || {};
+		// [doubt] 哪里会用到beforeResolve钩子
+		// [tip] hook beforeResolve
 		this.hooks.beforeResolve.callAsync(
 			{
 				contextInfo,
@@ -388,6 +441,7 @@ class NormalModuleFactory extends Tapable {
 				// Ignored
 				if (!result) return callback();
 
+				// [tip] hook beforeResolve
 				const factory = this.hooks.factory.call(null);
 
 				// Ignored
@@ -396,6 +450,8 @@ class NormalModuleFactory extends Tapable {
 				factory(result, (err, module) => {
 					if (err) return callback(err);
 
+					// [tip] 只有允许使用cache(cachePredicate返回true)时可以进行缓存
+					// [doubt] dependencies的含义以及缓存的含义
 					if (module && this.cachePredicate(module)) {
 						for (const d of dependencies) {
 							dependencyCache.set(d, module);
