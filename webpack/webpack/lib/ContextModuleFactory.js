@@ -19,6 +19,10 @@ const ContextElementDependency = require("./dependencies/ContextElementDependenc
 
 const EMPTY_RESOLVE_OPTIONS = {};
 
+// [tip] A context is created if your request contains expressions, so the exact module is not known on compile time.
+// [tip] It contains references to all modules in that directory that can be required with a request matching the regular expression.
+// [tip] The context module contains a map which translates requests to module ids.
+// [tip] https://webpack.js.org/guides/dependency-management/#require-with-expression
 module.exports = class ContextModuleFactory extends Tapable {
 	constructor(resolverFactory) {
 		super();
@@ -49,6 +53,7 @@ module.exports = class ContextModuleFactory extends Tapable {
 		const dependencies = data.dependencies;
 		const resolveOptions = data.resolveOptions;
 		const dependency = dependencies[0];
+		// [tip] hook beforeResolve
 		this.hooks.beforeResolve.callAsync(
 			Object.assign(
 				{
@@ -142,6 +147,7 @@ module.exports = class ContextModuleFactory extends Tapable {
 					(err, result) => {
 						if (err) return callback(err);
 
+						// [tip] hook beforeResolve
 						this.hooks.afterResolve.callAsync(
 							Object.assign(
 								{

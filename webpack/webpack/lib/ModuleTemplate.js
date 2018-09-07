@@ -56,6 +56,8 @@ module.exports = class ModuleTemplate extends Tapable {
 				this.runtimeTemplate,
 				this.type
 			);
+			// [tip] 调用挂载在ModuleTemplate render方法中各个阶段钩子上的方法，获取module的代码的处理结果
+			// [tip] 阶段顺序 content->module->render->package
 			const moduleSourcePostContent = this.hooks.content.call(
 				moduleSource,
 				module,

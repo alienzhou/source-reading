@@ -212,6 +212,8 @@ module.exports = class RuntimeTemplate {
 		});
 		const optDeclaration = update ? "" : "var ";
 
+		// [tip] 根据同步依赖的情况，替换语法
+		// [tip] 这里使用到了__webpack_require__.n和__webpack_require__.t
 		const exportsType = module.buildMeta && module.buildMeta.exportsType;
 		let content = `/* harmony import */ ${optDeclaration}${importVar} = __webpack_require__(${moduleId});\n`;
 
@@ -297,6 +299,7 @@ module.exports = class RuntimeTemplate {
 		}
 	}
 
+	// [tip] 包装异步的模块（chunk）加载
 	blockPromise({ block, message }) {
 		if (!block || !block.chunkGroup || block.chunkGroup.chunks.length === 0) {
 			const comment = this.comment({

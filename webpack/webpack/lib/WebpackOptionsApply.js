@@ -288,6 +288,7 @@ class WebpackOptionsApply extends OptionsApply {
 			}).apply(compiler);
 		}
 
+		// [tip] ================================================================
 		// [tip] 这一部分是不论什么配置都会使用的基础webpack内置插件，应该是包含了webpack模块依赖分析和打包的基础功能
 		new JavascriptModulesPlugin().apply(compiler);
 		new JsonModulesPlugin().apply(compiler);
@@ -320,6 +321,7 @@ class WebpackOptionsApply extends OptionsApply {
 		).apply(compiler);
 		new ImportPlugin(options.module).apply(compiler);
 		new SystemPlugin(options.module).apply(compiler);
+		// [tip] ================================================================
 
 
 		// [tip] 下面开始，针对配置注册一系列的webpack内置插件

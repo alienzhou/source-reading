@@ -206,6 +206,7 @@ class Template {
 	 * @param {string=} prefix applying prefix strings
 	 * @returns {ConcatSource} rendered chunk modules in a Source object
 	 */
+	// [tip] webpack通过该方法生成最后的chunk文件内容
 	static renderChunkModules(
 		chunk,
 		filterFn,

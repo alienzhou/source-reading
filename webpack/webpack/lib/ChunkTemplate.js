@@ -54,6 +54,7 @@ module.exports = class ChunkTemplate extends Tapable {
 	getRenderManifest(options) {
 		const result = [];
 
+		// [tip] hook renderManifest
 		this.hooks.renderManifest.call(result, options);
 
 		return result;
@@ -67,6 +68,7 @@ module.exports = class ChunkTemplate extends Tapable {
 	updateHash(hash) {
 		hash.update("ChunkTemplate");
 		hash.update("2");
+		// [tip] hook hash
 		this.hooks.hash.call(hash);
 	}
 
@@ -78,6 +80,7 @@ module.exports = class ChunkTemplate extends Tapable {
 	 */
 	updateHashForChunk(hash, chunk) {
 		this.updateHash(hash);
+		// [tip] hook hashForChunk
 		this.hooks.hashForChunk.call(hash, chunk);
 	}
 };

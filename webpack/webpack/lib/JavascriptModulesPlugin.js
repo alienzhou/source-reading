@@ -15,6 +15,9 @@ class JavascriptModulesPlugin {
 		compiler.hooks.compilation.tap(
 			"JavascriptModulesPlugin",
 			(compilation, { normalModuleFactory }) => {
+				// [tip] 为normalModuleFactory的createParser钩子map设置不用的钩子方法
+				// [tip] 根据module类型的不同，需要使用不同的paser和generator
+				// [tip] auto/dynamic/esm
 				normalModuleFactory.hooks.createParser
 					.for("javascript/auto")
 					.tap("JavascriptModulesPlugin", options => {
@@ -45,6 +48,7 @@ class JavascriptModulesPlugin {
 					.tap("JavascriptModulesPlugin", () => {
 						return new JavascriptGenerator();
 					});
+				// [tip] 注册mainTemplate上的renderManifest钩子
 				compilation.mainTemplate.hooks.renderManifest.tap(
 					"JavascriptModulesPlugin",
 					(result, options) => {
@@ -80,6 +84,7 @@ class JavascriptModulesPlugin {
 						return result;
 					}
 				);
+				// [tip] 在mainTemplate上的modules上注册钩子，该钩子中会将modules生成为chunk
 				compilation.mainTemplate.hooks.modules.tap(
 					"JavascriptModulesPlugin",
 					(source, chunk, hash, moduleTemplate, dependencyTemplates) => {

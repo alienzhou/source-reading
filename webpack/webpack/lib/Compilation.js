@@ -409,21 +409,26 @@ class Compilation extends Tapable {
 		this.profile = options && options.profile;
 		this.performance = options && options.performance;
 
+		// [tip] webpack 前端模块化的主要方法的 template
 		this.mainTemplate = new MainTemplate(this.outputOptions);
+		// [tip] 生成webpack各个chunk代码的 template
 		this.chunkTemplate = new ChunkTemplate(this.outputOptions);
+		// [tip] HotUpdateChunkTemplate
 		this.hotUpdateChunkTemplate = new HotUpdateChunkTemplate(
 			this.outputOptions
 		);
+		// [tip] 根据源码中模块导入导出语法，生成前端模块导入语法，例如__webpack_require__(moduleId)和__webpack_require__.e(chunkId)等
 		this.runtimeTemplate = new RuntimeTemplate(
 			this.outputOptions,
 			this.requestShortener
 		);
+		// [tip] ModuleTemplate根据content->module->render->package顺序触发钩子
 		this.moduleTemplates = {
 			javascript: new ModuleTemplate(this.runtimeTemplate, "javascript"),
 			webassembly: new ModuleTemplate(this.runtimeTemplate, "webassembly")
 		};
 
-		// [tip] Semaphore是一个任务池管理的类（类似于线程池），此处设置最大并发任务数默认为100
+		// [tip] 信号量，参照操作系统
 		this.semaphore = new Semaphore(options.parallelism || 100);
 
 		this.entries = [];
@@ -498,7 +503,7 @@ class Compilation extends Tapable {
 	 */
 	// [tip] 向compilation中添加模块
 	addModule(module, cacheGroup) {
-		// [tip] 不同的Module子类的identifier不同
+		// [tip] 不同的Module子类的identifier不同(共有8个不同的Module子类)
 		const identifier = module.identifier();
 		const alreadyAddedModule = this._modules.get(identifier);
 		if (alreadyAddedModule) {
