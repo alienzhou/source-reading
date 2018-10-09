@@ -254,6 +254,7 @@ class NormalModule extends Module {
 		return new OriginalSource(source, identifier);
 	}
 
+	// [tip] 异步的构建函数
 	doBuild(options, compilation, resolver, fs, callback) {
 		const loaderContext = this.createLoaderContext(
 			resolver,
@@ -262,6 +263,7 @@ class NormalModule extends Module {
 			fs
 		);
 
+		// [tip] build的第一步是运行模块的loader
 		runLoaders(
 			{
 				resource: this.resource,
@@ -393,6 +395,7 @@ class NormalModule extends Module {
 		this._buildHash = hash.digest("hex");
 	}
 
+	// [tip] 模块的主体构建方法
 	build(options, compilation, resolver, fs, callback) {
 		this.buildTimestamp = Date.now();
 		this.built = true;

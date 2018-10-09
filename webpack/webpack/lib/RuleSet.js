@@ -100,7 +100,9 @@ const andMatcher = items => {
 
 module.exports = class RuleSet {
 	constructor(rules) {
+		// [tip] this.reference为一个map，保存了各个loader模块的options（配置）
 		this.references = Object.create(null);
+		// [tip] 规则测试方法，及其对应对应的loader标识（rules中的loader字段）、options配置等
 		this.rules = RuleSet.normalizeRules(rules, this.references, "ref-");
 	}
 
@@ -116,6 +118,7 @@ module.exports = class RuleSet {
 		}
 	}
 
+	// [tip] 根据配置内容，将rule的各个资源上挂载上各类属性的测试方法
 	static normalizeRule(rule, refs, ident) {
 		if (typeof rule === "string") {
 			return {
@@ -326,6 +329,7 @@ module.exports = class RuleSet {
 			newRule[key] = rule[key];
 		}
 
+		// [tip] this.reference为一个map，保存了各个loader模块的options（配置）
 		if (Array.isArray(newRule.use)) {
 			for (const item of newRule.use) {
 				if (item.ident) {
@@ -410,6 +414,7 @@ module.exports = class RuleSet {
 		return newItem;
 	}
 
+	// [tip] 返回对模块路径测试的方法
 	static normalizeCondition(condition) {
 		if (!condition) throw new Error("Expected condition but got falsy value");
 		if (typeof condition === "string") {
@@ -489,6 +494,8 @@ module.exports = class RuleSet {
 		if (rule.resourceQuery && !data.resourceQuery) return false;
 		if (rule.compiler && !data.compiler) return false;
 		if (rule.issuer && !data.issuer) return false;
+		// [tip] 使用之前标准化的rule规则，对resource、realResource等一系列模块路径数据进行规则校验
+		// [tip] 如果未通过则返回false，通过某个规则，则将其加入result，视为要应用的loader
 		if (rule.resource && !rule.resource(data.resource)) return false;
 		if (rule.realResource && !rule.realResource(data.realResource))
 			return false;

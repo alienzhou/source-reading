@@ -1,4 +1,5 @@
 module.exports = function loadLoader(loader, callback) {
+	// [tip] 兼容SystemJS
 	if(typeof System === "object" && typeof System.import === "function") {
 		System.import(loader.path).catch(callback).then(function(module) {
 			loader.normal = typeof module === "function" ? module : module.default;

@@ -311,6 +311,7 @@ class NormalModuleFactory extends Tapable {
 						resourcePath = resourcePath.substr(0, queryIndex);
 					}
 
+					// [tip] 执行loader规则校验
 					// [tip] RuleSet类用来处理webpack.config中的各类loader条件，即处理module.rules（后解析config loader）
 					const result = this.ruleSet.exec({
 						resource: resourcePath,
@@ -441,7 +442,7 @@ class NormalModuleFactory extends Tapable {
 				// Ignored
 				if (!result) return callback();
 
-				// [tip] hook beforeResolve
+				// [tip] hook factory
 				const factory = this.hooks.factory.call(null);
 
 				// Ignored

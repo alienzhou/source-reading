@@ -428,7 +428,7 @@ class Compilation extends Tapable {
 			webassembly: new ModuleTemplate(this.runtimeTemplate, "webassembly")
 		};
 
-		// [tip] 信号量，参照操作系统
+		// [tip] 信号量，默认值为100，最大并行100
 		this.semaphore = new Semaphore(options.parallelism || 100);
 
 		this.entries = [];
@@ -946,7 +946,9 @@ class Compilation extends Tapable {
 			);
 		}
 
+		// [tip] 限制并行创建NormalModule的数量，默认最大并发100
 		this.semaphore.acquire(() => {
+			// [tip] 通过NormalModuleFactory创建NormalModule
 			moduleFactory.create(
 				{
 					contextInfo: {
@@ -1031,6 +1033,7 @@ class Compilation extends Tapable {
 	 * @param {ModuleCallback} callback callback function
 	 * @returns {void} returns
 	 */
+	// [tip] addEntry -> _addModuleChain -> create normal module -> 一系列其他链式操作
 	addEntry(context, entry, name, callback) {
 		const slot = {
 			name: name,

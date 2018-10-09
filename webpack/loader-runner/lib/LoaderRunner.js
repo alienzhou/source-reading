@@ -90,10 +90,11 @@ function createLoaderObject(loader) {
 
 function runSyncOrAsync(fn, context, args, callback) {
 	var isSync = true;
+	// [tip] isDone用来判断loader的callback是否已经被执行过
 	var isDone = false;
 	var isError = false; // internal error
 	var reportedError = false;
-	// [tip] 通过提供的async方法更改内部isSync的状态
+	// [tip] 通过提供的async方法更改内部isSync的状态，异步loader的开关
 	context.async = function async() {
 		if(isDone) {
 			if(reportedError) return; // ignore
@@ -121,15 +122,18 @@ function runSyncOrAsync(fn, context, args, callback) {
 		var result = (function LOADER_EXECUTION() {
 			return fn.apply(context, args);
 		}());
+		// [tip] 此处只处理同步
 		if(isSync) {
 			isDone = true;
 			if(result === undefined)
 				return callback();
+			// [tip] 这里判断loader中的返回是不是一个promise，loader也可以通过返回promise来实现异步
 			if(result && typeof result === "object" && typeof result.then === "function") {
 				return result.catch(callback).then(function(r) {
 					callback(null, r);
 				});
 			}
+			// [tip] 普通结果内容的返回
 			return callback(null, result);
 		}
 	} catch(e) {
@@ -148,6 +152,7 @@ function runSyncOrAsync(fn, context, args, callback) {
 
 }
 
+// [tip] 根据raw参数的值，将string与buffer进行转化：raw-buffer；非raw-string
 function convertArgs(args, raw) {
 	if(!raw && Buffer.isBuffer(args[0]))
 		args[0] = utf8BufferToString(args[0]);
@@ -155,9 +160,11 @@ function convertArgs(args, raw) {
 		args[0] = new Buffer(args[0], "utf-8"); // eslint-disable-line
 }
 
-// [tip] 递归遍历执行所有loader pitch
+// [tip] 循环遍历执行所有loader pitch
 function iteratePitchingLoaders(options, loaderContext, callback) {
 	// abort after last loader
+	// [tip] 只有所有loader pitch被执行完后，才会执行processResource，包括其中的addDependencies
+	// [tip] 注意，当pitch中提前返回时，并不会去readResource（即读取文件内容）
 	if(loaderContext.loaderIndex >= loaderContext.loaders.length)
 		return processResource(options, loaderContext, callback);
 
@@ -180,12 +187,17 @@ function iteratePitchingLoaders(options, loaderContext, callback) {
 
 		runSyncOrAsync(
 			fn,
+			// [tip] 注意，这里的currentLoaderObject.data就是我们可以在pitch阶段赋值/在normal阶段this.data取值的data参数
+			// [tip] 每一个loader都有自己的data对象，但是自始至终，我们在loader中操作的this都是这里的loaderContext对象
+			// [tip] 之所以我们用this.data能取到不同data，是因为，在我们自定以了loaderContext的data的get方法#365
 			loaderContext, [loaderContext.remainingRequest, loaderContext.previousRequest, currentLoaderObject.data = {}],
 			function(err) {
 				if(err) return callback(err);
 				var args = Array.prototype.slice.call(arguments, 1);
+				// [tip] 如果在pitch阶段有返回值，则直接跳过后续loader，逆序回来正常执行之前的各个loader
 				if(args.length > 0) {
 					loaderContext.loaderIndex--;
+					// [tip] 没有执行完所有pitch，则直接将pitch返回的内容，作为参数传给normal loader执行，而不是模块文件内容
 					iterateNormalLoaders(options, loaderContext, args, callback);
 				} else {
 					iteratePitchingLoaders(options, loaderContext, callback);
@@ -205,6 +217,7 @@ function processResource(options, loaderContext, callback) {
 		options.readResource(resourcePath, function(err, buffer) {
 			if(err) return callback(err);
 			options.resourceBuffer = buffer;
+			// [tip] 执行完所有pitch后读取模块文件，此时的args为模块文件的内容
 			iterateNormalLoaders(options, loaderContext, [buffer], callback);
 		});
 	} else {
@@ -212,7 +225,9 @@ function processResource(options, loaderContext, callback) {
 	}
 }
 
+// [tip] （向左）循环遍历所有loader的主体方法
 function iterateNormalLoaders(options, loaderContext, args, callback) {
+	// [tip] 所有loader都处理完毕
 	if(loaderContext.loaderIndex < 0)
 		return callback(null, args);
 
@@ -252,7 +267,6 @@ exports.runLoaders = function runLoaders(options, callback) {
 	var loaderContext = options.context || {};
 	var readResource = options.readResource || readFile;
 
-	//
 	// [tip] loader解析后是绝对路径
 	var splittedResource = resource && splitQuery(resource);
 	var resourcePath = splittedResource ? splittedResource[0] : undefined;
@@ -379,6 +393,7 @@ exports.runLoaders = function runLoaders(options, callback) {
 		}
 		callback(null, {
 			result: result,
+			// [tip] resourceBuffer中会存储原始模块中buffer内容
 			resourceBuffer: processOptions.resourceBuffer,
 			cacheable: requestCacheable,
 			fileDependencies: fileDependencies,
